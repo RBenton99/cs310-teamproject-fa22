@@ -52,7 +52,7 @@ public final class DAOFactory {
         return new EmployeeDAO(this);
     }
     
-    public AbsenteeismDAO getAbsenteeismDAO() {
-        return new AbsenteeismDAO(this);
+    public DAOAbsenteeism getAbsenteeismDAO() {
+        return new DAOAbsenteeism(this);
     }
 }
