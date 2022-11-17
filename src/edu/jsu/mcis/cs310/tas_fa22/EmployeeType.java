@@ -4,7 +4,7 @@ package edu.jsu.mcis.cs310.tas_fa22;
  *
  * @author admin
  */
-public enum EmployeeType {
+public class EmployeeType {
    PART_TIME("Temporary / Part-Time"),
    FULL_TIME("Full-Time");
    private final String description;
