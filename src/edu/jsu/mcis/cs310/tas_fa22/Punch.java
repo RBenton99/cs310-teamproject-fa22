@@ -30,4 +30,17 @@ public class Punch {
         this.punchtype = punchtype;
         this.originaltimestamp = originaltimestamp;
     }
+
+    public Integer getId() {
+        return id;
+    }
+
+    public Integer getTerminalid() {
+        return terminalid;
+    }
+
+    public Badge getBadge() {
+        return badge;
+    }
+    
 }
