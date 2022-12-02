@@ -22,13 +22,13 @@ public final class DAOUtility {
     HashMap<String, String> map;
     for (Punch p : dailypunchlist) {
       map = new HashMap<>();
-      map.put("id", p.getId());
-      map.put("badgeid", p.getBadgeid());
-      map.put("terminalid", p.getTerminalid());
-      map.put("punchtype", p.getPunchtype());
-      map.put("adjustmenttype", p.getAdjustmenttype());
-      map.put("originaltimestamp", p.getOriginaltimestamp());
-      map.put("adjustedtimestamp", p.getAdjustedtimestamp());
+      map.put("id", String.valueOf(p.getId()));
+      map.put("badgeid", p.getBadge().getId());
+      map.put("terminalid", String.valueOf(p.getTerminalid()));
+      map.put("punchtype", p.getPunchtype().toString());
+      map.put("adjustmenttype", p.getAdjustmentType().toString());
+      map.put("originaltimestamp", p.getOriginaltimestamp().toString());
+      map.put("adjustedtimestamp", p.getAdjustedtimestamp().toString());
 
       jsonData.add(map);
     }

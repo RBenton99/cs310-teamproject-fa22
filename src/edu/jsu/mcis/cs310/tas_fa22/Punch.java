@@ -2,14 +2,13 @@ package edu.jsu.mcis.cs310.tas_fa22;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.DayOfWeek;
-import java.util.Map;
 
 public class Punch {
-    private int terminalid;
-    private EventType punchtype;
-    private Badge badge;
-    private Integer id;
-    private LocalDateTime originaltimestamp;
+    private final int terminalid;
+    private final EventType punchtype;
+    private final Badge badge;
+    private final Integer id;
+    private final LocalDateTime originaltimestamp;
     private LocalDateTime adjustedtimestamp;
     private PunchAdjustmentType adjustmenttype;
     
@@ -26,11 +25,19 @@ public class Punch {
         this.terminalid = terminalid;
         this.badge = badge;
         this.punchtype = punchtype;
-        this.originaltimestamp = originaltimestamp;
+        this.originaltimestamp = originaltimestamp.withNano(0);
     }
-
-    public Punch(Map<String, String> map, Badge badge) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    
+    public LocalDateTime getOriginaltimestamp() {
+        return originaltimestamp;
+    }
+    
+    public LocalDateTime getAdjustedtimestamp() {
+        return adjustedtimestamp;
+    }
+    
+    public PunchAdjustmentType getAdjustmentType() {
+        return adjustmenttype;
     }
     
     public int getTerminalid() {
@@ -159,18 +166,7 @@ public void adjust(Shift s) {
         StringBuilder s = new StringBuilder();
         DateTimeFormatter DTF = DateTimeFormatter.ofPattern("EEE MM/dd/yyyy HH:mm:ss");
         s.append("#").append(badge.getId()).append(" ");
-        
-        switch(punchtype){
-            case CLOCK_IN:
-                s.append("CLOCKED IN");
-                break;
-            case CLOCK_OUT:
-                s.append("CLOCKED OUT");
-                break;
-            case TIME_OUT:
-                s.append("TIMED OUT");
-                break;
-        }
+        s.append(punchtype);
         s.append(": ").append(DTF.format(adjustedtimestamp).toUpperCase());
 
         s.append(" (").append(adjustmenttype).append(")");
@@ -181,18 +177,7 @@ public void adjust(Shift s) {
         StringBuilder s = new StringBuilder();
         DateTimeFormatter DTF = DateTimeFormatter.ofPattern("EEE MM/dd/yyyy HH:mm:ss");
         s.append("#").append(badge.getId()).append(" ");
-        
-        switch(punchtype){
-            case CLOCK_IN:
-                s.append("CLOCKED IN");
-                break;
-            case CLOCK_OUT:
-                s.append("CLOCKED OUT");
-                break;
-            case TIME_OUT:
-                s.append("TIMED OUT");
-                break;
-        }
+        s.append(punchtype);
         s.append(": ").append(DTF.format(originaltimestamp).toUpperCase());
         
         return s.toString();

@@ -9,17 +9,12 @@ import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.util.ArrayList;
 
-import edu.jsu.mcis.cs310.tas_fa22.Badge;
-import edu.jsu.mcis.cs310.tas_fa22.Department;
-import edu.jsu.mcis.cs310.tas_fa22.EventType;
-import edu.jsu.mcis.cs310.tas_fa22.Punch;
-import java.util.Collections;
-import java.util.Map;
+import edu.jsu.mcis.cs310.tas_fa22.*;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 
 public class PunchDAO {
 
-    Map<String, String> map = Collections.EMPTY_MAP;
-    Map<String, String> unmodifiableMap = Collections.unmodifiableMap(map);
     private static final String QUERY_ID = "SELECT * FROM event WHERE id = ?;";
     private static final String GET_ALL_PUNCHES_BY_BADGE_AND_DATE = "SELECT * FROM event WHERE badgeid = ? AND timestamp = ? ORDER BY timestamp DESC;";
     private static final String GET_ALL_PUNCHES_BY_BADGE_BETWEEN_TIMESTAMPS = "SELECT * FROM event WHERE badgeid = ? AND timestamp BETWEEN ? AND ? ORDER BY timestamp DESC;";
@@ -35,46 +30,47 @@ public class PunchDAO {
 
     public Punch find(int id) {
         Punch p = null;
-        PreparedStatement PS = null;
-        ResultSet RS = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
 
         try {
             Connection conn = daofactory.getConnection();
-
+            BadgeDAO badgeDAO = daofactory.getBadgeDAO();
+            
             if (conn.isValid(0)) {
-                PS = conn.prepareStatement(QUERY_ID);
-                PS.setInt(1, id);
+                ps = conn.prepareStatement(QUERY_ID);
+                ps.setInt(1, id);
 
-                boolean hasresults = PS.execute();
+                boolean hasresults = ps.execute();
 
                 if (hasresults) {
-                    RS = PS.getResultSet();
+                    rs = ps.getResultSet();
 
-                    while (RS.next()) {
-
-                        map.put RS.getString("id"));
-                        map.put("terminalid", RS.getString("terminalid"));
-                        map.put("badgeid", RS.getString("badgeid"));
-                        map.put("timestamp", RS.getString("timestamp"));
-                        map.put("eventtypeid", RS.getString("eventtypeid"));
-                        Badge badge = badgeDAO.find(RS.getString("badgeid"));
-                        p = new Punch(map, badge); // shift class using HashMap constructor
+                    if (rs.next()) {
+                        
+                        int terminalid = rs.getInt("terminalid");
+                        Badge badge = badgeDAO.find(rs.getString("badgeid"));
+                        LocalDateTime ots = rs.getTimestamp("timestamp").toLocalDateTime().withNano(0);
+                        EventType eventtype = EventType.values()[rs.getInt("eventtypeid")];
+                        
+                        p = new Punch(id, terminalid, badge, ots, eventtype);
+                        
                     }
                 }
             }
         } catch (SQLException e) {
             throw new DAOException(e.getMessage());
         } finally {
-            if (RS != null) {
+            if (rs != null) {
                 try {
-                    RS.close();
+                    rs.close();
                 } catch (SQLException e) {
                     throw new DAOException(e.getMessage());
                 }
             }
-            if (PS != null) {
+            if (ps != null) {
                 try {
-                    PS.close();
+                    ps.close();
                 } catch (SQLException e) {
                     throw new DAOException(e.getMessage());
                 }
@@ -84,68 +80,25 @@ public class PunchDAO {
     }
 
     public ArrayList<Punch> list(Badge badge, LocalDate begin, LocalDate end) {
-        Punch p = null;
-        PreparedStatement todayPS = null;
-        ResultSet RS = null;
-        Timestamp beignTimestamp = Timestamp.valueOf(begin.atStartOfDay());
-        Timestamp endTimestamp = Timestamp.valueOf(end.atStartOfDay());
+        
         ArrayList<Punch> punches = new ArrayList<>();
-
-        try {
-            Connection conn = daofactory.getConnection();
-
-            if (conn.isValid(0)) {
-                todayPS = conn.prepareStatement(GET_ALL_PUNCHES_BY_BADGE_BETWEEN_TIMESTAMPS);
-                todayPS.setString(1, badge.getId());
-                todayPS.setTimestamp(2, beignTimestamp);
-                todayPS.setTimestamp(3, endTimestamp);
-
-                boolean hasresults = todayPS.execute();
-
-                if (hasresults) {
-                    RS = todayPS.getResultSet();
-
-                    while (RS.next()) {
-
-                        map.put("id", RS.getString("id"));
-                        map.put("terminalid", RS.getString("terminalid"));
-                        map.put("badgeid", RS.getString("badgeid"));
-                        map.put("timestamp", RS.getString("timestamp"));
-                        map.put("eventtypeid", RS.getString("eventtypeid"));
-                        Badge b = badgeDAO.find(RS.getString("badgeid"));
-                        p = new Punch(map, b); // shift class using HashMap constructor
-                        // add the punch to the punches list
-                        punches.add(p);
-                    }
-                }
-
-            }
-        } catch (SQLException e) {
-            throw new DAOException(e.getMessage());
-        } finally {
-            if (RS != null) {
-                try {
-                    RS.close();
-                } catch (SQLException e) {
-                    throw new DAOException(e.getMessage());
-                }
-            }
-            if (todayPS != null) {
-                try {
-                    todayPS.close();
-                } catch (SQLException e) {
-                    throw new DAOException(e.getMessage());
-                }
-            }
+        
+        LocalDate current = begin;
+        
+        while ( !current.isAfter(end) ) {
+            punches.addAll(list(badge, current));
+            current.plus(1, ChronoUnit.DAYS);
         }
+        
         return punches;
+        
     }
 
     public ArrayList<Punch> list(Badge b, LocalDate toLocalDate) {
 
         Punch p = null;
         PreparedStatement todayPS = null;
-        ResultSet RS = null;
+        ResultSet rs = null;
         Timestamp timestamp = Timestamp.valueOf(toLocalDate.atStartOfDay());
         ArrayList<Punch> punches = new ArrayList<>();
 
@@ -173,47 +126,47 @@ public class PunchDAO {
                 boolean hasresults = todayPS.execute();
 
                 if (hasresults) {
-                    RS = todayPS.getResultSet();
+                    rs = todayPS.getResultSet();
 
-                    while (RS.next()) {
+                    while (rs.next()) {
 
-                        map.put("id", RS.getString("id"));
-                        map.put("terminalid", RS.getString("terminalid"));
-                        map.put("badgeid", RS.getString("badgeid"));
-                        map.put("timestamp", RS.getString("timestamp"));
-                        map.put("eventtypeid", RS.getString("eventtypeid"));
-                        Badge badge = badgeDAO.find(RS.getString("badgeid"));
-                        p = new Punch(map, badge); // shift class using HashMap constructor
+                        int id = rs.getInt("id");
+                        int terminalid = rs.getInt("terminalid");
+                        Badge badge = badgeDAO.find(rs.getString("badgeid"));
+                        LocalDateTime ots = rs.getTimestamp("timestamp").toLocalDateTime().withNano(0);
+                        EventType eventtype = EventType.values()[rs.getInt("eventtypeid")];
                         // add the punch to the punches list
+                        p = new Punch(id, terminalid, badge, ots, eventtype);
                         punches.add(p);
+                        
                     }
                 }
 
                 // this block get the first punch from the following day and LIMITs to 1 if it
                 // is available
                 if (nexDayHasResults) {
-                    RS = followingDayPS.getResultSet();
+                    rs = followingDayPS.getResultSet();
 
-                    while (RS.next()) {
+                    while (rs.next()) {
 
-                        map.put("id", RS.getString("id"));
-                        map.put("terminalid", RS.getString("terminalid"));
-                        map.put("badgeid", RS.getString("badgeid"));
-                        map.put("timestamp", RS.getString("timestamp"));
-                        map.put("eventtypeid", RS.getString("eventtypeid"));
-                        Badge badge = badgeDAO.find(RS.getString("badgeid"));
-                        p = new Punch(map, badge); // shift class using HashMap constructor
+                        int id = rs.getInt("id");
+                        int terminalid = rs.getInt("terminalid");
+                        Badge badge = badgeDAO.find(rs.getString("badgeid"));
+                        LocalDateTime ots = rs.getTimestamp("timestamp").toLocalDateTime().withNano(0);
+                        EventType eventtype = EventType.values()[rs.getInt("eventtypeid")];
                         // add the punch to the punches list
+                        p = new Punch(id, terminalid, badge, ots, eventtype);
                         punches.add(p);
+                        
                     }
                 }
             }
         } catch (SQLException e) {
             throw new DAOException(e.getMessage());
         } finally {
-            if (RS != null) {
+            if (rs != null) {
                 try {
-                    RS.close();
+                    rs.close();
                 } catch (SQLException e) {
                     throw new DAOException(e.getMessage());
                 }
@@ -229,40 +182,48 @@ public class PunchDAO {
         return punches;
     }
 
-    public int create(Punch p1) {
+    public Integer create(Punch p1) {
+        
+        Integer key = null;
+        
         PreparedStatement pst = null;
 
         try {
+            
             Connection conn = daofactory.getConnection();
             pst = conn.prepareStatement(SQL_INSERT, Statement.RETURN_GENERATED_KEYS);
             Badge badge = p1.getBadge();
-            Department d = daofactory.getDepartmentDAO().find(badge);
+            Employee employee = daofactory.getEmployeeDAO().find(badge);
+            Department d = daofactory.getDepartmentDAO().find(employee.getId());
 
-            if (p1.getTerminalid() != d.getTerminalid() && p1.getTerminalid() != 0) {
-                return 0;
+            if ( !(p1.getTerminalid() != d.getTerminalid() && p1.getTerminalid() != 0) ) {
+                
+                // "INSERT INTO event (terminalid, badgeid, timestamp, eventtypeid) VALUES (?, ?, ?, ?)";
+
+                pst.setInt(1, p1.getTerminalid());
+                pst.setString(2, p1.getBadge().getId());
+                pst.setTimestamp(3, java.sql.Timestamp.valueOf(p1.getOriginaltimestamp()));
+                pst.setInt(4, p1.getPunchtype().ordinal());
+
+                int rows = pst.executeUpdate();
+
+                if (rows == 0) {
+                    throw new DAOException("Creating user failed, no rows affected.");
+                }
+
+                ResultSet generatedKeys = pst.getGeneratedKeys();
+
+                if (generatedKeys.next()) {
+                    key = generatedKeys.getInt(1);
+                }
+                
             }
 
-            pst.setInt(1, p1.getTerminalid());
-            pst.setString(2, p1.getBadgeid());
-            pst.setString(3, p1.getOriginaltimestamp().toString());
-            pst.setInt(4, p1.getEventtypeid());
-
-            int rows = pst.executeUpdate();
-
-            if (rows == 0) {
-                throw new DAOException("Creating user failed, no rows affected.");
-            }
-
-            ResultSet generatedKeys = pst.getGeneratedKeys();
-
-            if (generatedKeys.next()) {
-                return generatedKeys.getInt(1);
-            }
-
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             throw new DAOException(e.getMessage());
-
-        } finally {
+        }
+        finally {
             if (pst != null) {
                 try {
                     pst.close();
@@ -271,6 +232,8 @@ public class PunchDAO {
                 }
             }
         }
-        return 0;
+        
+        return key;
+        
     }
 }

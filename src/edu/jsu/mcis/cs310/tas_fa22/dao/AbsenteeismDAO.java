@@ -5,7 +5,7 @@ import java.time.LocalDate;
 
 public class AbsenteeismDAO {
    
-    private static final String QUERY= "SELECT * FROM absenteeism WHERE employeeid = ? AND payroll = ?";
+    private static final String QUERY = "SELECT * FROM absenteeism WHERE employeeid = ? AND payroll = ?";
     private final DAOFactory daofactory;
 
     public AbsenteeismDAO(DAOFactory daofactory) {
