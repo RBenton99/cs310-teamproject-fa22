@@ -1,11 +1,10 @@
 package edu.jsu.mcis.cs310.tas_fa22;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 
 public class Absenteeism {
-    private Employee employee;
-    private LocalDate payroll;
-    private Double Percent; //big decimal to set precision
+    final Employee employee;
+    final LocalDate payroll;
+    final Double Percent;
 
     public Absenteeism(Employee employee, LocalDate payroll, Double Percent) {
         this.employee = employee;

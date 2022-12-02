@@ -1,4 +1,4 @@
-package edu.jsu.mcis.cs310.tas_fa22.dao;
+ package edu.jsu.mcis.cs310.tas_fa22.dao;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -8,21 +8,23 @@ import java.sql.Statement;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.HashMap;
 
 import edu.jsu.mcis.cs310.tas_fa22.Badge;
 import edu.jsu.mcis.cs310.tas_fa22.Department;
 import edu.jsu.mcis.cs310.tas_fa22.EventType;
 import edu.jsu.mcis.cs310.tas_fa22.Punch;
+import java.util.Collections;
+import java.util.Map;
 
 public class PunchDAO {
 
+    Map<String, String> map = Collections.EMPTY_MAP;
+    Map<String, String> unmodifiableMap = Collections.unmodifiableMap(map);
     private static final String QUERY_ID = "SELECT * FROM event WHERE id = ?;";
     private static final String GET_ALL_PUNCHES_BY_BADGE_AND_DATE = "SELECT * FROM event WHERE badgeid = ? AND timestamp = ? ORDER BY timestamp DESC;";
     private static final String GET_ALL_PUNCHES_BY_BADGE_BETWEEN_TIMESTAMPS = "SELECT * FROM event WHERE badgeid = ? AND timestamp BETWEEN ? AND ? ORDER BY timestamp DESC;";
     private static final String GET_ALL_PUNCHES_BY_BADGE_FOR_FOLLOWING_DAY = "SELECT * FROM event WHERE badgeid = ? AND timestamp = ? AND eventtypeid = ? OR eventtypeid = ? ORDER BY timestamp ASC LIMIT 1;";
     private static final String SQL_INSERT = "INSERT INTO event (terminalid, badgeid, timestamp, eventtypeid) VALUES (?, ?, ?, ?)";
-    private HashMap<String, String> map = new HashMap<>();
     private DAOFactory daofactory = null;
     private final BadgeDAO badgeDAO;
 
@@ -50,7 +52,7 @@ public class PunchDAO {
 
                     while (RS.next()) {
 
-                        map.put("id", RS.getString("id"));
+                        map.put RS.getString("id"));
                         map.put("terminalid", RS.getString("terminalid"));
                         map.put("badgeid", RS.getString("badgeid"));
                         map.put("timestamp", RS.getString("timestamp"));
