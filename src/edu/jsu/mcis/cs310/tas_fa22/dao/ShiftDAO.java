@@ -7,10 +7,11 @@ import java.util.*;
 /**
  *
  * @author Colbylee Mincey
+ *         Adam Parton
  */
 public class ShiftDAO {
     private static final String QUERY_ID = "SELECT * FROM shift WHERE id = ?";
-    private static final String QUERY_BADGE = "SELECT * FROM employee WHERE badgeid = ?";
+    private static final String QUERY_BADGE = "SELECT shiftid FROM employee WHERE badgeid = ?";
     private HashMap<String, String>map = new HashMap<>();
     private final DAOFactory daofactory;
     
@@ -20,33 +21,33 @@ public class ShiftDAO {
     
     public Shift find(int id) {
         Shift shift = null;
-        PreparedStatement PS = null;
-        ResultSet RS = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
         
         try{
             Connection conn = daofactory.getConnection();
             
             if(conn.isValid(0)){
-            PS = conn.prepareStatement(QUERY_ID);
-            PS.setInt(1, id);
+            ps = conn.prepareStatement(QUERY_ID);
+            ps.setInt(1, id);
             
-            boolean hasresults = PS.execute();
+            boolean hasresults = ps.execute();
             
                 if (hasresults) {
-                   RS = PS.getResultSet();
+                   rs = ps.getResultSet();
                    
                    
-                while (RS.next()) {
-                    map.put("id", RS.getString("id"));
-                    map.put("description", RS.getString("description"));
-                    map.put("shiftstart", RS.getString("shiftstart"));
-                    map.put("shiftstop", RS.getString("shiftstop"));
-                    map.put("roundinterval", RS.getString("roundinterval"));
-                    map.put("graceperiod", RS.getString("graceperiod"));
-                    map.put("dockpenalty", RS.getString("dockpenalty"));
-                    map.put("lunchstart", RS.getString("lunchstart"));
-                    map.put("lunchstop", RS.getString("lunchstop"));
-                    map.put("lunchthreshold", RS.getString("lunchthreshold"));
+                while (rs.next()) {
+                    map.put("id", rs.getString("id"));
+                    map.put("description", rs.getString("description"));
+                    map.put("shiftstart", rs.getString("shiftstart"));
+                    map.put("shiftstop", rs.getString("shiftstop"));
+                    map.put("roundinterval", rs.getString("roundinterval"));
+                    map.put("graceperiod", rs.getString("graceperiod"));
+                    map.put("dockpenalty", rs.getString("dockpenalty"));
+                    map.put("lunchstart", rs.getString("lunchstart"));
+                    map.put("lunchstop", rs.getString("lunchstop"));
+                    map.put("lunchthreshold", rs.getString("lunchthreshold"));
                     shift = new Shift(map); // shift class using HashMap constructor
                     }
                 }
@@ -54,16 +55,16 @@ public class ShiftDAO {
         }catch (SQLException e) {
     throw new DAOException(e.getMessage());
 } finally {
-    if (RS != null) {
+    if (rs != null) {
         try {
-            RS.close();
+            rs.close();
         } catch (SQLException e) {
             throw new DAOException(e.getMessage());
         }
     }
-    if (PS != null) {
+    if (ps != null) {
         try {
-            PS.close();
+            ps.close();
         } catch (SQLException e) {
             throw new DAOException(e.getMessage());
         }
@@ -73,33 +74,24 @@ return shift;
 }
     public Shift find(Badge badge){
         Shift shift = null;
-        PreparedStatement PS = null;
-        ResultSet RS = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
         
         try{
             Connection conn = daofactory.getConnection();
             
             if(conn.isValid(0)){
-                PS = conn.prepareStatement(QUERY_BADGE);
-                PS.setString(1, badge.getId());
+                ps = conn.prepareStatement(QUERY_BADGE);
+                ps.setString(1, badge.getId());
                 
-                boolean hasresults = PS.execute();
+                boolean hasresults = ps.execute();
                 
                 if(hasresults){
-                    RS = PS.getResultSet();
+                    rs = ps.getResultSet();
                     
-                    while (RS.next()){
-                        map.put("id", RS.getString("id"));
-                        map.put("description", RS.getString("description"));
-                        map.put("shiftstart", RS.getString("shiftstart"));
-                        map.put("shiftstop", RS.getString("shiftstop"));
-                        map.put("roundinterval", RS.getString("roundinterval"));
-                        map.put("graceperiod", RS.getString("graceperiod"));
-                        map.put("dockpenalty", RS.getString("dockpenalty"));
-                        map.put("lunchstart", RS.getString("lunchstart"));
-                        map.put("lunchstop", RS.getString("lunchstop"));
-                        map.put("lunchthreshold", RS.getString("lunchthreshold")); 
-                        shift = new Shift(map); // shift class using HashMap constructor
+                    while (rs.next()){
+                        int anId = Integer.parseInt(rs.getString("shiftid"));
+                        shift = ShiftDAO.this.find(anId);
                     }
                     
                 } 
@@ -107,20 +99,21 @@ return shift;
         } catch (SQLException e) {
             throw new DAOException(e.getMessage());
         } finally {
-            if (RS != null) {
+            if (rs != null) {
                 try {
-                    RS.close();
+                    rs.close();
                 } catch (SQLException e) {
                     throw new DAOException(e.getMessage());
                 }
             }
         }
-        if (PS != null) {
+        if (ps != null) {
             try {
-                PS.close();
+                ps.close();
             } catch (SQLException e) {
                 throw new DAOException(e.getMessage());
             }
-        }return shift;
+        }
+        return shift;
     }
 } 
