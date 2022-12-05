@@ -5,7 +5,7 @@ import java.time.DayOfWeek;
 
 public class Punch {
     private final int terminalid;
-    private final EventType punchtype;
+    private final EventType eventtype;
     private final Badge badge;
     private final Integer id;
     private final LocalDateTime originaltimestamp;
@@ -16,7 +16,7 @@ public class Punch {
         this.id = null;
         this.terminalid = terminalid;
         this.badge = badge;
-        this.punchtype = punchtype;
+        this.eventtype = punchtype;
         this.originaltimestamp = LocalDateTime.now();
     }
     
@@ -24,7 +24,7 @@ public class Punch {
         this.id = id;
         this.terminalid = terminalid;
         this.badge = badge;
-        this.punchtype = punchtype;
+        this.eventtype = punchtype;
         this.originaltimestamp = originaltimestamp.withNano(0);
     }
     
@@ -45,7 +45,7 @@ public class Punch {
     }
 
     public EventType getPunchtype() {
-        return punchtype;
+        return eventtype;
     }
 
     public Badge getBadge() {
@@ -102,7 +102,7 @@ public void adjust(Shift s) {
         dockStop.plusMinutes( -s.getDockPenalty());
         
         if(originaltimestamp.getDayOfWeek() != DayOfWeek.SATURDAY || originaltimestamp.getDayOfWeek() != DayOfWeek.SUNDAY){
-            if(punchtype == EventType.CLOCK_IN){
+            if(eventtype == EventType.CLOCK_IN){
                 
                 if(intervalStart.isBefore(originaltimestamp)&& shiftStart.isAfter(originaltimestamp)){
                     adjustedtimestamp = shiftStart;
@@ -121,7 +121,7 @@ public void adjust(Shift s) {
                     adjustmenttype = PunchAdjustmentType.LUNCH_STOP;
                     adjusted = true;
                 }
-            }else if (punchtype == EventType.CLOCK_OUT){
+            }else if (eventtype == EventType.CLOCK_OUT){
                 if(originaltimestamp.isAfter(lunchStart) && originaltimestamp.isBefore(lunchStop)){
                     adjustedtimestamp = lunchStart;
                     adjustmenttype = PunchAdjustmentType.LUNCH_START;
@@ -166,7 +166,7 @@ public void adjust(Shift s) {
         StringBuilder s = new StringBuilder();
         DateTimeFormatter DTF = DateTimeFormatter.ofPattern("EEE MM/dd/yyyy HH:mm:ss");
         s.append("#").append(badge.getId()).append(" ");
-        s.append(punchtype);
+        s.append(eventtype);
         s.append(": ").append(DTF.format(adjustedtimestamp).toUpperCase());
 
         s.append(" (").append(adjustmenttype).append(")");
@@ -177,7 +177,7 @@ public void adjust(Shift s) {
         StringBuilder s = new StringBuilder();
         DateTimeFormatter DTF = DateTimeFormatter.ofPattern("EEE MM/dd/yyyy HH:mm:ss");
         s.append("#").append(badge.getId()).append(" ");
-        s.append(punchtype);
+        s.append(eventtype);
         s.append(": ").append(DTF.format(originaltimestamp).toUpperCase());
         
         return s.toString();

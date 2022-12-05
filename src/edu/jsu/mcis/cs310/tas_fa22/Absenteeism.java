@@ -3,12 +3,12 @@ import java.time.LocalDate;
 
 public class Absenteeism {
     final Employee employee;
-    final LocalDate payroll;
+    final LocalDate payperiod;
     final Double Percent;
 
     public Absenteeism(Employee employee, LocalDate payroll, Double Percent) {
         this.employee = employee;
-        this.payroll = payroll;
+        this.payperiod = payroll;
         this.Percent = Percent;
     }
     
@@ -16,17 +16,18 @@ public class Absenteeism {
         return employee;
     }
 
-    public LocalDate getPayroll() {
-        return payroll;
+    public LocalDate getPayperiod() {
+        return payperiod;
     }
 
     public Double getPercent() {
         return Percent;
     }
 
+    
     @Override
     public String toString() {
-        return "Absenteeism{" + "employee=" + employee + ", payroll=" + payroll + ", Percent=" + Percent + '}';
+        return "Absenteeism{" + "employee=" + employee + ", payperiod=" + payperiod + ", Percent=" + Percent + '}';
     }
     
 }

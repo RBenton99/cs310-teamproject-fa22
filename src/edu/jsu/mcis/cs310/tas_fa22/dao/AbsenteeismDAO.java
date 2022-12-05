@@ -5,41 +5,43 @@ import java.time.LocalDate;
 
 public class AbsenteeismDAO {
    
-    private static final String QUERY = "SELECT * FROM absenteeism WHERE employeeid = ? AND payroll = ?";
+    private static final String QFIND = "SELECT * FROM absenteeism WHERE employeeid = ? AND payperiod = ?";
+    private static final String QCREATE = "INSERT INTO absenteeism (employeeid, payperiod, percentage) VALUES (?, ?, ?)";
+    private static final String QUPDATE = "UPDATE absenteeism SET percentage percentage = ? WHERE payperiod = ? AND employeeid = ?";
     private final DAOFactory daofactory;
 
     public AbsenteeismDAO(DAOFactory daofactory) {
         this.daofactory = daofactory;
     }
      
- public Absenteeism find(int id,Employee employee, LocalDate payroll){
+ public Absenteeism find(int id,Employee employee, LocalDate payperiod){
         Absenteeism absenteeism = null;
-        PreparedStatement PS = null;
-        ResultSet RS = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
         
         try{
             Connection conn = daofactory.getConnection();
             
             if(conn.isValid(0)){
-                PS = conn.prepareStatement(QUERY);
-                PS.setInt(1, id);
+                ps = conn.prepareStatement(QFIND);
+                ps.setInt(1, id);
                 
-                boolean hasresults = PS.execute();
+                boolean hasresults = ps.execute();
                 
             if (conn.isValid(0)) {
                 
-                PS = conn.prepareStatement(QUERY);
-                PS.setInt(1, employee.getId());
-                PS.setDate(2, Date.valueOf(payroll));
+                ps = conn.prepareStatement(QFIND);
+                ps.setInt(1, employee.getId());
+                ps.setDate(2, Date.valueOf(payperiod));
                 
                 if (hasresults) {
 
-                    RS = PS.getResultSet();
+                    rs = ps.getResultSet();
 
-                    while (RS.next()) {
+                    while (rs.next()) {
                       
-                        double percentage = RS.getDouble("percent");
-                        absenteeism = new Absenteeism(employee, payroll, percentage);
+                        double percentage = rs.getDouble("percent");
+                        absenteeism = new Absenteeism(employee, payperiod, percentage);
                         }
                 }
             }
@@ -49,17 +51,17 @@ public class AbsenteeismDAO {
                 throw new DAOException(e.getMessage());
             }
             finally {
-                        if (RS != null) {
+                        if (rs != null) {
                             try {
-                                RS.close();
+                                rs.close();
                             } catch (SQLException e) {
                                 throw new DAOException(e.getMessage());
                             }
 
                         }
-                        if (PS != null) {
+                        if (ps != null) {
                             try {
-                                PS.close();
+                                ps.close();
                             } catch (SQLException e) {
                                 throw new DAOException(e.getMessage());
                             }
@@ -68,5 +70,12 @@ public class AbsenteeismDAO {
             }
         return absenteeism;
     }
+ public Absenteeism create (Absenteeism absenteeism){
+             
+        PreparedStatement ps = null;
+       
+        AbsenteeismDAO DAO_absenteeism = new AbsenteeismDAO(daofactory);
+        return absenteeism;
+ }
 
 }
