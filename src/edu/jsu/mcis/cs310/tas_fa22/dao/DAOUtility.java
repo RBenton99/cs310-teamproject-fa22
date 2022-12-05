@@ -2,10 +2,9 @@ package edu.jsu.mcis.cs310.tas_fa22.dao;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-
 import org.json.simple.*;
-
-import edu.jsu.mcis.cs310.tas_fa22.Punch;
+import java.time.format.DateTimeFormatter;
+import edu.jsu.mcis.cs310.tas_fa22.*;
 
 /**
  * 
@@ -15,8 +14,10 @@ import edu.jsu.mcis.cs310.tas_fa22.Punch;
  * 
  */
 public final class DAOUtility {
+    public static int calculateTotalMinutes(ArrayList<Punch>dailypunchlist, Shift shift) {
 
-  public static String getPunchListAsJSON(ArrayList<Punch> dailypunchlist) {
+    }
+    public static String getPunchListAsJSON(ArrayList<Punch>dailypunchlist) {
     /* Create ArrayList Object */
     ArrayList<HashMap<String, String>> jsonData = new ArrayList<>();
     HashMap<String, String> map;
@@ -35,7 +36,12 @@ public final class DAOUtility {
 
     String json = JSONValue.toJSONString(jsonData);
 
-    return json;
-  }
-
+    return json;    
+    }
+    public static double calculateAbsenteeism(ArrayList<Punch>punchlist, Shift shift) {
+        
+    }
+    public static String getPunchListPlusTotalsAsJSON(ArrayList<Punch>punchlist, Shift shift) {
+        
+    }
 }
