@@ -2,7 +2,6 @@ package edu.jsu.mcis.cs310.tas_fa22;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import edu.jsu.mcis.cs310.tas_fa22.EmployeeType;
 
 /**
  *
